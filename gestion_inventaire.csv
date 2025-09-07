@@ -1,0 +1,4 @@
+ID,name,description,category_id,supplier_id,price,cost,quantity,min_quantity,SKU,created_at,updated_at
+4ee603,Eau Cristal,Eau minérale 1L,Alimentation,Cristal company,500,300,250,50,44OS08,-2017,-2017
+77ydh9,Lait Milk,Lait entier en poudre de 900g,Alimentation,Milk company,5000,7000,100,25,00io8,-2012,-2006
+234sry9,Flan alsa,Flan pâtissier aux oeufs,Alimentation,Alsa France,7000,4000,300,50,L24281,-2014,-2024
