@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "nom": "pomme",
+        "prix": 200,
+        "quantite": 20,
+        "seuil_alerte": 10,
+        "categorie": "Fruits"
+    },
+    {
+        "id": 1,
+        "nom": "pomme",
+        "prix": 200,
+        "quantite": 20,
+        "seuil_alerte": 10,
+        "categorie": "Fruits"
+    },
+    {
+        "id": 1,
+        "nom": "ananas",
+        "prix": 500,
+        "quantite": 20,
+        "seuil_alerte": 10,
+        "categorie": "Fruits"
+    },
+    {
+        "id": 1,
+        "nom": "pomme",
+        "prix": 200,
+        "quantite": 20,
+        "seuil_alerte": 10,
+        "categorie": "Fruits"
+    }
+]
