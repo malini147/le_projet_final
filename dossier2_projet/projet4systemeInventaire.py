@@ -97,12 +97,25 @@ class GestionnaireInventaire:
                 i=0
         self.sauvegarde() 
 
+    def alerte_stock(self):
+        alertes=[]
+        for p in self.produits:
+            if p.quantite<=p.seuil_alerte:
+                alertes.append(p)
+        if alertes:
+            print("\n Produits en stock bas : ")
+            for p in alertes:
+                print(f" - {p.nom} ({p.quantite} restants, seuil : {p.seuil_alerte})")
+        else:
+            print("\n Aucun produit en stock critique.")
             
         
 
 inventaire=GestionnaireInventaire()
 inventaire.ajouter_produit(1, "pomme", 200, 20, seuil_alerte=10, categorie="Fruits")
-# inventaire.ajouter_produit(1, "ananas", 500, 20, seuil_alerte=10, categorie="Fruits")
+inventaire.ajouter_produit(1, "ananas", 500, 12, seuil_alerte=10, categorie="Fruits")
+inventaire.ajouter_produit(1, "robe", 2500, 10, seuil_alerte=10, categorie="Vetements")
 # # inventaire.modifier_produit("pomme", nouvelle_quantite=30)
 # inventaire.modifier_produit("pomme", nouveau_prix=400, nouvelle_quantite=40, nouveau_seuil=20)
 inventaire.supprimer_produit("ananas")
+inventaire.supprimer_produit("pomme")
