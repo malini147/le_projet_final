@@ -1,33 +1,41 @@
 [
     {
         "id": 1,
-        "nom": "pomme",
-        "prix": 200,
-        "quantite": 20,
-        "seuil_alerte": 10,
-        "categorie": "Fruits"
-    },
-    {
-        "id": 1,
-        "nom": "pomme",
-        "prix": 200,
-        "quantite": 20,
-        "seuil_alerte": 10,
-        "categorie": "Fruits"
-    },
-    {
-        "id": 1,
         "nom": "ananas",
         "prix": 500,
-        "quantite": 20,
+        "quantite": 12,
         "seuil_alerte": 10,
         "categorie": "Fruits"
     },
     {
-        "id": 1,
+        "id": 2,
+        "nom": "robe",
+        "prix": 2500,
+        "quantite": 10,
+        "seuil_alerte": 10,
+        "categorie": "Vetements"
+    },
+    {
+        "id": 3,
+        "nom": "Orange",
+        "prix": 200.0,
+        "quantite": 15,
+        "seuil_alerte": 10,
+        "categorie": "Fruits"
+    },
+    {
+        "id": 4,
+        "nom": "Montre",
+        "prix": 15000.0,
+        "quantite": 19,
+        "seuil_alerte": 10,
+        "categorie": "Accessoire"
+    },
+    {
+        "id": 5,
         "nom": "pomme",
-        "prix": 200,
-        "quantite": 20,
+        "prix": 300.0,
+        "quantite": 15,
         "seuil_alerte": 10,
         "categorie": "Fruits"
     }
