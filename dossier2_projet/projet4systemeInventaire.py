@@ -1,4 +1,22 @@
 import json
+import time
+import uuid
+
+class categorie:
+    def __init__(self, nom, description=""):
+        self.id= str(uuid.uuid4())
+        self.nom=nom
+        self.description=description
+    
+    def to_dict(self):
+        dict={
+            "id": self.id,
+            "nom": self.nom,
+            "description": self.description
+        }
+        return 
+        
+
 class Produit:
     def __init__(self, Id, nom, prix, quantite, seuil_alerte=10, categorie="Divers") :
         self.id=Id
@@ -86,17 +104,20 @@ class GestionnaireInventaire:
             nouvelle_quantite=int(nouvelle_quantite)
             nouveau_seuil=int(nouveau_seuil)
             if nouveau_prix<0 or nouvelle_quantite<0 or nouveau_seuil<0:
-                    print("les valeurs ne peuvent pas etre négatives.")
+                print("les valeurs ne peuvent pas etre négatives.")
             else:
                 for p in self.produits:
-                    if p.nom== nom:
+                    if p.nom.lower()== nom.lower():
                         x=1
-                        if nouveau_prix is not None:
+                        if nouveau_prix:
                             p.prix=nouveau_prix
-                        if nouvelle_quantite is not None:
+                            #self.sauvegarde()
+                        if nouvelle_quantite:
                             p.quantite=nouvelle_quantite
-                        if nouveau_seuil is not None:
+                            #self.sauvegarde()
+                        if nouveau_seuil:
                             p.seuil_alerte=nouveau_seuil
+                            #self.sauvegarde()
                 self.sauvegarde()
                 if x==1:
                     print(f"Produit '{nom}' modifié avec succès.")
@@ -124,11 +145,13 @@ class GestionnaireInventaire:
                 print("Produit trouvé: ")
                 print(p.to_dict())
                 x=0
+                return p
             elif p.nom.lower()!=nom.lower():
                 liste.append(p.nom)
         if x is None:
             if nom.lower() not in liste:
                 print(f"Produit {nom} introuvable.")
+                return None
 
     def modifier_Quantite(self, nom, nouvelle_quantite):
         try:
@@ -139,7 +162,7 @@ class GestionnaireInventaire:
                 p=self.rechercher_produit(nom)
                 if p is not None:
                     p.quantite=nouvelle_quantite
-                    self.sauvegarder()
+                    self.sauvegarde()
                     print(f"Quantité de '{nom}' mise à jour: {nouvelle_quantite}")
                 else:
                     print("Produit introuvable.")
@@ -180,7 +203,7 @@ class GestionnaireInventaire:
         return resultats
     
     def rapport_valeur(self):
-        print(f"\n valeur totale du stock : {self.valeur_totale_stock} francs cfa")
+        print(f"\n valeur totale du stock : {self.valeur_totale_stock()} francs cfa")
         
 
 inventaire=GestionnaireInventaire()
@@ -231,7 +254,7 @@ while True:
         print("\n---Modifier la quantite d'un produit---")
         nom=input("Nom du produit: ")
         nouvelle_quantite=input("Nouvelle quantité: ")
-        inventaire.modifier_Quantite(nom,categorie)
+        inventaire.modifier_Quantite(nom,nouvelle_quantite)
     elif choix=="7":
         print("\n---vérifier les alertes de stock ---")
         inventaire.alerte_stock()
@@ -240,6 +263,7 @@ while True:
         inventaire.afficher_inventaire()
     elif choix=="9":
         print("\n---Génération d'un rapport de valeur de stock---")
+        inventaire.rapport_valeur()
     elif choix=="10":
         print("Merci!")
         break

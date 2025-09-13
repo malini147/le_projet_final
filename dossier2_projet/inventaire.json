@@ -34,8 +34,8 @@
     {
         "id": 5,
         "nom": "pomme",
-        "prix": 300.0,
-        "quantite": 15,
+        "prix": 350.0,
+        "quantite": 20,
         "seuil_alerte": 10,
         "categorie": "Fruits"
     }
