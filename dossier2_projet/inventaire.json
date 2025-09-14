@@ -5,7 +5,7 @@
         "prix": 500,
         "quantite": 12,
         "seuil_alerte": 10,
-        "categorie": "Fruits"
+        "categorie_id": "Fruits"
     },
     {
         "id": 2,
@@ -13,7 +13,7 @@
         "prix": 2500,
         "quantite": 10,
         "seuil_alerte": 10,
-        "categorie": "Vetements"
+        "categorie_id": "Vetements"
     },
     {
         "id": 3,
@@ -21,7 +21,7 @@
         "prix": 200.0,
         "quantite": 15,
         "seuil_alerte": 10,
-        "categorie": "Fruits"
+        "categorie_id": "Fruits"
     },
     {
         "id": 4,
@@ -29,7 +29,7 @@
         "prix": 15000.0,
         "quantite": 19,
         "seuil_alerte": 10,
-        "categorie": "Accessoire"
+        "categorie_id": "Accessoire"
     },
     {
         "id": 5,
@@ -37,6 +37,14 @@
         "prix": 350.0,
         "quantite": 20,
         "seuil_alerte": 10,
-        "categorie": "Fruits"
+        "categorie_id": "Fruits"
+    },
+    {
+        "id": 6,
+        "nom": "cocacola",
+        "prix": 1000.0,
+        "quantite": 30,
+        "seuil_alerte": 10,
+        "categorie_id": "4b93027b-f594-40e4-b1d5-d0f8b2097f6c"
     }
 ]

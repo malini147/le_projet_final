@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 
-class categorie:
+class Categorie:
     def __init__(self, nom, description=""):
         self.id= str(uuid.uuid4())
         self.nom=nom
@@ -14,17 +14,16 @@ class categorie:
             "nom": self.nom,
             "description": self.description
         }
-        return 
-        
+        return dict 
 
 class Produit:
-    def __init__(self, Id, nom, prix, quantite, seuil_alerte=10, categorie="Divers") :
+    def __init__(self, Id, nom, prix, quantite, seuil_alerte=10, categorie_id=None) :
         self.id=Id
         self.nom=nom
         self.prix=prix
         self.quantite=quantite
         self.seuil_alerte=seuil_alerte
-        self.categorie=categorie
+        self.categorie_id=categorie_id
     def to_dict(self):
         dict = {
             "id": self.id,
@@ -32,7 +31,7 @@ class Produit:
             "prix": self.prix,
             "quantite": self.quantite,
             "seuil_alerte": self.seuil_alerte,
-            "categorie": self.categorie
+            "categorie_id": self.categorie_id
         }
         return dict
 class GestionnaireInventaire:
@@ -40,6 +39,7 @@ class GestionnaireInventaire:
         self.fichierss = fichierss
         self.produits = []
         self.charger_load()
+        self.categories=[]
 
     def charger_load(self):
         try:
@@ -51,8 +51,8 @@ class GestionnaireInventaire:
                     Produit.prix=prod["prix"]
                     Produit.quantite=prod["quantite"]
                     Produit.seuil_alerte=prod["seuil_alerte"]
-                    Produit.categorie=prod["categorie"]
-                    self.produits.append(Produit(Produit.id, Produit.nom, Produit.prix, Produit.quantite, Produit.seuil_alerte, Produit.categorie))
+                    Produit.categorie_id=prod["categorie_id"]
+                    self.produits.append(Produit(Produit.id, Produit.nom, Produit.prix, Produit.quantite, Produit.seuil_alerte, Produit.categorie_id))
                 #return 
         except FileNotFoundError :
             print("Le fichier n'existe pas")
@@ -70,14 +70,36 @@ class GestionnaireInventaire:
             #     liste_dict.append(p.to_dict)
             # json.dump(liste_dict, fichier, indent=4)
             json.dump([p.to_dict() for p in self.produits], fichier,indent=4)
+
+    def ajouter_categorie(self, nom, description):
+        cat=Categorie(nom.lower(), description)
+        self.categories.append(cat)
+        print(f"Catégorie '{nom}' ajoutée avec succès.")
+        return cat.id
+
+    def afficher_categories(self):
+        if not self.categories:
+            print("Aucune catégorie enregistrée.")
+        else:
+            print("\n=== Liste des catégories ===")
+            for c in self.categories:
+                print(f"[{c.id}]  {c.nom}")
+
+    def trouver_categorie(self, nom):
+        for c in self.categories:
+            if c.nom.lower()==nom.lower():
+                return c.id
+            else:
+                return False
         
-    def ajouter_produit(self, nom, prix, quantite, seuil_alerte=10, categorie="Divers"):
+    def ajouter_produit(self, nom, prix, quantite, seuil_alerte, categorie_id):
         # self.donnees=self.charger_load()
         # self.Id = len(self.donnees)+1
         # self.Nom=input("Nom du produit à ajouter: ")
         # self.Categorie=input("Catégorie: ")
         # self.Prix=float(input("Prix: "))
         # self.Quantite=int(input("Quantité: "))
+        x=1
         for p in self.produits:
             if p.nom==nom:
                 print(f"Le produit '{nom}' existe déja.")
@@ -91,7 +113,7 @@ class GestionnaireInventaire:
                 if prix<0 or quantite<0 or seuil_alerte<0:
                     print("les valeurs ne peuvent pas etre négatives.")
                 else:
-                    self.produits.append(Produit(Id, nom, prix, quantite, seuil_alerte, categorie))
+                    self.produits.append(Produit(Id, nom, prix, quantite, seuil_alerte, categorie_id))
                     self.sauvegarde()
                     print(f"Produit '{nom}' ajouté avec succès.")
             except ValueError:
@@ -195,10 +217,10 @@ class GestionnaireInventaire:
             for p in self.produits:
                 print(f"\n {p.nom} | {p.categorie} | {p.quantite} unités | {p.prix} francs cfa | seuil={p.seuil_alerte}")
 
-    def rechercher_par_categorie(self, categorie):
+    def rechercher_par_categorie(self, categorie_id):
         resultats=[]
         for p in self.produits:
-            if p.categorie.lower()==categorie.lower():
+            if p.categorie_id.lower()==categorie_id.lower():
                 resultats.append(p.to_dict())
         return resultats
     
@@ -218,17 +240,38 @@ while True:
     print("7.Vérifier les alertes ")
     print("8.Afficher l'inventaire complet")
     print("9.Générer un rapport de valeur du stock")
-    print("10.Quitter")
+    print("10.Ajouter categorie")
+    print("11.Afficher toutes les categories")
+    print("12.Rechercher une categorie")
+    print("13.Quitter")
     print("=============================================")
     choix=input("Veuillez choisir une option(1-10): ")
-    if choix=="1":
+    if choix=="10":
+        print("\n---Ajouter une categorie---")
+        nom=input("Nom de la categorie: ")
+        description=input("Description: ")
+        inventaire.ajouter_categorie(nom.lower(), description)
+    elif choix=="1":
         print("\n---Ajouter un produit---")
         nom=input("Nom du produit à ajouter: ")
         prix=input("Prix du produit: ")
         quantite=input("Quantité du produit: ")
         seuil_alerte=input("Seuil d'alerte(défaut:10): ")
-        categorie=input("Entrer la catégorie du produit: ")
-        inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie)
+        print("\n Choisir une catégorie existante ou taper 'nouvelle': ") 
+        inventaire.afficher_categories()
+        choix_cat=input("Nom de la categorie: ")
+        if choix_cat.lower()=="nouvelle":
+            nom_cat=input("Nom de la nouvelle catégorie: ")
+            desc_cat=input("Description: ")
+            categorie_id=inventaire.ajouter_categorie(nom_cat.lower(), desc_cat)
+            #inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie)
+        else:
+            categorie_id=inventaire.trouver_categorie(choix_cat.lower())
+            if not categorie:
+                print("Categorie introuvable")
+        inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id)
+        
+            
     elif choix=="2":
         print("\n--Modifier un produit--")
         nom=input("Nom du produit à modifier: ")
@@ -264,7 +307,7 @@ while True:
     elif choix=="9":
         print("\n---Génération d'un rapport de valeur de stock---")
         inventaire.rapport_valeur()
-    elif choix=="10":
+    elif choix=="13":
         print("Merci!")
         break
     else:
