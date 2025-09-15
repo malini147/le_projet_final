@@ -71,9 +71,32 @@ class GestionnaireInventaire:
             # json.dump(liste_dict, fichier, indent=4)
             json.dump([p.to_dict() for p in self.produits], fichier,indent=4)
 
+    def charger_categories(self, fichier_cat="categories.json"):
+        try:
+            with open(fichier_cat,"r") as fichier:
+                donnees=json.load(fichier)
+                for c in donnees:
+                    Categorie.id=c["id"]
+                    Categorie.nom=c["nom"]
+                    Categorie.description=["description"]
+                    self.categories.append(Categorie(Categorie.id, Categorie.nom, Categorie.description))
+        except FileNotFoundError :
+            print("Le fichier n'existe pas")
+            #return []
+            self.categoriess=[]
+        except json.JSONDecodeError:
+            print("Fichier JSON invalide")
+            #return []
+            self.categories=[]
+
+    def sauvegarder_categories(self, fichier_cat="categories.json"):
+        with open(fichier_cat, "w") as f:
+            json.dump([c.to_dict() for c in self.categories], f, indent=4)
+    
     def ajouter_categorie(self, nom, description):
         cat=Categorie(nom.lower(), description)
         self.categories.append(cat)
+        self.sauvegarder_categories()
         print(f"Catégorie '{nom}' ajoutée avec succès.")
         return cat.id
 
@@ -99,6 +122,7 @@ class GestionnaireInventaire:
                 if confirmation=="oui":
                     del self.categories[i]
                     print(f"Produit {c.nom} supprimé")
+                    self.sauvegarder_categories()
             else:
                 print("Catégorie inexistante")
 
@@ -243,6 +267,7 @@ class GestionnaireInventaire:
         
 
 inventaire=GestionnaireInventaire()
+inventaire.charger_categories()
 while True:
     print("\n=== SYSTEME DE GESTION D'INVENTAIRE ===")
     print("1. Gestion des produits")
