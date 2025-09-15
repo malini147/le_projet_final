@@ -42,9 +42,17 @@
     {
         "id": 6,
         "nom": "cocacola",
-        "prix": 1000.0,
+        "prix": 1500.0,
         "quantite": 30,
         "seuil_alerte": 10,
         "categorie_id": "4b93027b-f594-40e4-b1d5-d0f8b2097f6c"
+    },
+    {
+        "id": 7,
+        "nom": "Veste",
+        "prix": 30000.0,
+        "quantite": 25,
+        "seuil_alerte": 10,
+        "categorie_id": "a16e01b6-b21a-41f5-b06f-2fb65dcfd2f7"
     }
 ]

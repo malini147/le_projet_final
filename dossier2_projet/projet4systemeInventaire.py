@@ -91,7 +91,17 @@ class GestionnaireInventaire:
                 return c.id
             else:
                 return False
-        
+    
+    def supprimer_categorie(self, categorie_nom):
+        for i,c in enumerate (self.categories):
+            if c.nom.lower()==categorie_nom.lower():
+                confirmation = input(f"Etes vous sur de vouloir supprimer la categorie {c.nom} ? (oui/non) : ").lower()
+                if confirmation=="oui":
+                    del self.categories[i]
+                    print(f"Produit {c.nom} supprimé")
+            else:
+                print("Catégorie inexistante")
+
     def ajouter_produit(self, nom, prix, quantite, seuil_alerte, categorie_id):
         # self.donnees=self.charger_load()
         # self.Id = len(self.donnees)+1
@@ -215,14 +225,18 @@ class GestionnaireInventaire:
         else:
             print("\n Inventaire complet : ")
             for p in self.produits:
-                print(f"\n {p.nom} | {p.categorie} | {p.quantite} unités | {p.prix} francs cfa | seuil={p.seuil_alerte}")
+                print(f"\n {p.nom} | {p.categorie_id} | {p.quantite} unités | {p.prix} francs cfa | seuil={p.seuil_alerte}")
 
-    def rechercher_par_categorie(self, categorie_id):
+    def rechercher_par_categorie(self, cat_nom):
         resultats=[]
+        cat_id=self.trouver_categorie(cat_nom)
         for p in self.produits:
-            if p.categorie_id.lower()==categorie_id.lower():
+            if p.categorie_id.lower()==cat_id.lower():
                 resultats.append(p.to_dict())
-        return resultats
+        if resultats:
+            return resultats
+        # else:
+        #     return False
     
     def rapport_valeur(self):
         print(f"\n valeur totale du stock : {self.valeur_totale_stock()} francs cfa")
@@ -231,87 +245,178 @@ class GestionnaireInventaire:
 inventaire=GestionnaireInventaire()
 while True:
     print("\n=== SYSTEME DE GESTION D'INVENTAIRE ===")
-    print("1.Ajouter un produit")
-    print("2.Modifier un produit")
-    print("3.Supprimer un produit")
-    print("4.Rechercher un produit")
-    print("5.Rechercher des produits par categorie")
-    print("6.Modifier la quantite d'un produit")
-    print("7.Vérifier les alertes ")
-    print("8.Afficher l'inventaire complet")
-    print("9.Générer un rapport de valeur du stock")
-    print("10.Ajouter categorie")
-    print("11.Afficher toutes les categories")
-    print("12.Rechercher une categorie")
-    print("13.Quitter")
-    print("=============================================")
-    choix=input("Veuillez choisir une option(1-10): ")
-    if choix=="10":
-        print("\n---Ajouter une categorie---")
-        nom=input("Nom de la categorie: ")
-        description=input("Description: ")
-        inventaire.ajouter_categorie(nom.lower(), description)
-    elif choix=="1":
-        print("\n---Ajouter un produit---")
-        nom=input("Nom du produit à ajouter: ")
-        prix=input("Prix du produit: ")
-        quantite=input("Quantité du produit: ")
-        seuil_alerte=input("Seuil d'alerte(défaut:10): ")
-        print("\n Choisir une catégorie existante ou taper 'nouvelle': ") 
-        inventaire.afficher_categories()
-        choix_cat=input("Nom de la categorie: ")
-        if choix_cat.lower()=="nouvelle":
-            nom_cat=input("Nom de la nouvelle catégorie: ")
-            desc_cat=input("Description: ")
-            categorie_id=inventaire.ajouter_categorie(nom_cat.lower(), desc_cat)
-            #inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie)
-        else:
-            categorie_id=inventaire.trouver_categorie(choix_cat.lower())
-            if not categorie:
-                print("Categorie introuvable")
-        inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id)
-        
-            
+    print("1. Gestion des produits")
+    print("2. Gestion des catégories")
+    print("3. Gestion des fournisseurs et stock")
+    print("4. Quitter")
+    # print("1.Ajouter un produit")
+    # print("2.Modifier un produit")
+    # print("3.Supprimer un produit")
+    # print("4.Rechercher un produit")
+    # print("5.Rechercher des produits par categorie")
+    # print("6.Modifier la quantite d'un produit")
+    # print("7.Vérifier les alertes ")
+    # print("8.Afficher l'inventaire complet")
+    # print("9.Générer un rapport de valeur du stock")
+    # print("10.Ajouter categorie")
+    # print("11.Afficher toutes les categories")
+    # print("12.Rechercher une categorie")
+    # print("13.Quitter")
+    # print("=============================================")
+    choix=input("Veuillez choisir une option(1-4): ")
+    if choix=="1":
+        while True:
+            print("--- GESTION DES PRODUITS ---")
+            print("1.Ajouter un produit")
+            print("2.Modifier un produit")
+            print("3.Supprimer un produit")
+            print("4.Rechercher un produit")
+            print("5.Afficher l'inventaire complet")
+            print("6.Retour")
+            sous_choix=input("Choisissez une option: ")
+            if sous_choix=="1":
+                print("\n---Ajouter un produit---")
+                nom=input("Nom du produit à ajouter: ")
+                prix=input("Prix du produit: ")
+                quantite=input("Quantité du produit: ")
+                seuil_alerte=input("Seuil d'alerte(défaut:10): ")
+                print("\n Choisir une catégorie existante ou taper 'nouvelle': ") 
+                inventaire.afficher_categories()
+                choix_cat=input("Nom de la categorie: ")
+                if choix_cat.lower()=="nouvelle":
+                    nom_cat=input("Nom de la nouvelle catégorie: ")
+                    desc_cat=input("Description: ")
+                    categorie_id=inventaire.ajouter_categorie(nom_cat.lower(), desc_cat)
+                    #inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie)
+                else:
+                    categorie_id=inventaire.trouver_categorie(choix_cat.lower())
+                    if not categorie_id:
+                        print("Categorie introuvable")
+                inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id)
+            elif sous_choix=="2":
+                print("\n--Modifier un produit--")
+                nom=input("Nom du produit à modifier: ")
+                nouveau_nom=input("Nouveau nom (laisser vide pour ne pas changer): ")
+                nouveau_prix=input("nouveau prix (laisser vide pour ne pas changer): ")
+                nouvelle_quantite=input("Nouvelle quantité (laisser vide pour ne pas changer): ")
+                nouveau_seuil=input("Nouveau seuil d'alerte(laisser vi de pour ne pas changer): ")
+                inventaire.modifier_produit(nom, nouveau_prix, nouvelle_quantite, nouveau_seuil)
+            elif sous_choix=="3":
+                print("\n--Supprimer un produit---")
+                nom=input("Nom du produit à supprimer: ")
+                inventaire.supprimer_produit(nom)
+            elif sous_choix=="4":
+                print("\n--Rechercher un produit--")
+                nom=input("Nom du produit à rechercher: ")
+                inventaire.rechercher_produit(nom)
+            elif sous_choix=="5":
+                print("\n---Affichage complet de l'inventaire---")
+                inventaire.afficher_inventaire()
+            elif sous_choix=="6":
+                
+                break
     elif choix=="2":
-        print("\n--Modifier un produit--")
-        nom=input("Nom du produit à modifier: ")
-        nouveau_nom=input("Nouveau nom (laisser vide pour ne pas changer): ")
-        nouveau_prix=input("nouveau prix (laisser vide pour ne pas changer): ")
-        nouvelle_quantite=input("Nouvelle quantité (laisser vide pour ne pas changer): ")
-        nouveau_seuil=input("Nouveau seuil d'alerte(laisser vide pour ne pas changer): ")
-        inventaire.modifier_produit(nom, nouveau_prix, nouvelle_quantite, nouveau_seuil)
-    elif choix=="3":
-        print("\n--Supprimer un produit---")
-        nom=input("Nom du produit à supprimer: ")
-        inventaire.supprimer_produit(nom)
+        while True:
+            print("\n--- GESTION DES CATEGORIES ---")
+            print("1.Ajouter categorie")
+            print("2.Afficher toutes les categories")
+            print("3.Supprimer une categorie")
+            print("4.Afficher produits par categorie")
+            print("5. Retour")
+            sous_choix=input("Choisissez une option: ")
+            if sous_choix=="1":
+                print("\n---Ajouter une categorie---")
+                nom=input("Nom de la categorie: ")
+                description=input("Description: ")
+                inventaire.ajouter_categorie(nom.lower(), description)
+            elif sous_choix=="2":
+                print("\n---Afficher toutes les categories---")
+                inventaire.afficher_categories()
+            elif sous_choix=="3":
+                print("\n---Supprimer une catégorie---")
+                nom_cat=input("Nom de la categorie à supprimer: ")
+                inventaire.supprimer_categorie(nom_cat)
+            elif sous_choix=="4":
+                print("---Afficher produit par categorie---")
+                categorie_nom=input("Nom de la catégorie: ")
+                resultat=inventaire.rechercher_par_categorie(categorie_nom)
+                # if resultat:
+                print(f"Liste des produits de la categorie {categorie_nom}: {resultat}")
+                # elif not resultat:
+                #     print("Catégorie introuvable")
+            elif sous_choix=="5":
+                print("\n Retour au menu principal")
+                break
     elif choix=="4":
-        print("\n--Rechercher un produit--")
-        nom=input("Nom du produit à rechercher: ")
-        inventaire.rechercher_produit(nom)
-    elif choix=="5":
-        print("\n---Recherche par catégorie---")
-        categorie=input("La catégorie des produits que vous souhaitez afficher: ")
-        liste_categorie=inventaire.rechercher_par_categorie(categorie)
-        print(f"Produits de categorie '{categorie}' : {liste_categorie}")
-    elif choix=="6":
-        print("\n---Modifier la quantite d'un produit---")
-        nom=input("Nom du produit: ")
-        nouvelle_quantite=input("Nouvelle quantité: ")
-        inventaire.modifier_Quantite(nom,nouvelle_quantite)
-    elif choix=="7":
-        print("\n---vérifier les alertes de stock ---")
-        inventaire.alerte_stock()
-    elif choix=="8":
-        print("\n---Affichage complet de l'inventaire---")
-        inventaire.afficher_inventaire()
-    elif choix=="9":
-        print("\n---Génération d'un rapport de valeur de stock---")
-        inventaire.rapport_valeur()
-    elif choix=="13":
         print("Merci!")
         break
-    else:
-        print("Choix invalide, veuillez choisir entre 1 et 9")
+
+    # if choix=="10":
+    #     print("\n---Ajouter une categorie---")
+    #     nom=input("Nom de la categorie: ")
+    #     description=input("Description: ")
+    #     inventaire.ajouter_categorie(nom.lower(), description)
+    # elif choix=="1":
+    #     print("\n---Ajouter un produit---")
+    #     nom=input("Nom du produit à ajouter: ")
+    #     prix=input("Prix du produit: ")
+    #     quantite=input("Quantité du produit: ")
+    #     seuil_alerte=input("Seuil d'alerte(défaut:10): ")
+    #     print("\n Choisir une catégorie existante ou taper 'nouvelle': ") 
+    #     inventaire.afficher_categories()
+    #     choix_cat=input("Nom de la categorie: ")
+    #     if choix_cat.lower()=="nouvelle":
+    #         nom_cat=input("Nom de la nouvelle catégorie: ")
+    #         desc_cat=input("Description: ")
+    #         categorie_id=inventaire.ajouter_categorie(nom_cat.lower(), desc_cat)
+    #         #inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie)
+    #     else:
+    #         categorie_id=inventaire.trouver_categorie(choix_cat.lower())
+    #         if not categorie_id:
+    #             print("Categorie introuvable")
+    #     inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id)
+        
+            
+   # elif choix=="2":
+    #     print("\n--Modifier un produit--")
+    #     nom=input("Nom du produit à modifier: ")
+    #     nouveau_nom=input("Nouveau nom (laisser vide pour ne pas changer): ")
+    #     nouveau_prix=input("nouveau prix (laisser vide pour ne pas changer): ")
+    #     nouvelle_quantite=input("Nouvelle quantité (laisser vide pour ne pas changer): ")
+    #     nouveau_seuil=input("Nouveau seuil d'alerte(laisser vi de pour ne pas changer): ")
+    #     inventaire.modifier_produit(nom, nouveau_prix, nouvelle_quantite, nouveau_seuil)
+    # elif choix=="3":
+    #     print("\n--Supprimer un produit---")
+    #     nom=input("Nom du produit à supprimer: ")
+    #     inventaire.supprimer_produit(nom)
+    # elif choix=="4":
+    #     print("\n--Rechercher un produit--")
+    #     nom=input("Nom du produit à rechercher: ")
+    #     inventaire.rechercher_produit(nom)
+    # elif choix=="5":
+    #     print("\n---Recherche par catégorie---")
+    #     categorie=input("La catégorie des produits que vous souhaitez afficher: ")
+    #     liste_categorie=inventaire.rechercher_par_categorie(categorie)
+    #     print(f"Produits de categorie '{categorie}' : {liste_categorie}")
+    # elif choix=="6":
+    #     print("\n---Modifier la quantite d'un produit---")
+    #     nom=input("Nom du produit: ")
+    #     nouvelle_quantite=input("Nouvelle quantité: ")
+    #     inventaire.modifier_Quantite(nom,nouvelle_quantite)
+    # elif choix=="7":
+    #     print("\n---vérifier les alertes de stock ---")
+    #     inventaire.alerte_stock()
+    # elif choix=="8":
+    #     print("\n---Affichage complet de l'inventaire---")
+    #     inventaire.afficher_inventaire()
+    # elif choix=="9":
+    #     print("\n---Génération d'un rapport de valeur de stock---")
+    #     inventaire.rapport_valeur()
+    # elif choix=="13":
+    #     print("Merci!")
+    #     break
+    # else:
+    #     print("Choix invalide, veuillez choisir entre 1 et 9")
 
 
 
