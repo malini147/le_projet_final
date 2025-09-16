@@ -1,5 +1,5 @@
 import json
-import time
+import datetime
 import uuid
 
 class Categorie:
@@ -15,15 +15,38 @@ class Categorie:
             "description": self.description
         }
         return dict 
+    
+class Fournisseur:
+    def __init__(self, name, contact_person="", email="", phone="", address=""):
+        self.id=str(uuid.uuid4())
+        self.name=name
+        self.contact_person=contact_person
+        self.email=email
+        self.phone=phone
+        self.address=address
+        self.created_at=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def to_dict(self):
+        dict={
+            "id": self.id,
+            "name": self.name,
+            "contact_fournisseur": self.contact_person,
+            "email": self.email,
+            "téléphone": self.phone,
+            "address": self.address,
+            "created_at": self.created_at
+        }
+        return dict
 
 class Produit:
-    def __init__(self, Id, nom, prix, quantite, seuil_alerte=10, categorie_id=None) :
+    def __init__(self, Id, nom, prix, quantite, seuil_alerte, categorie_id, supplier_id) :
         self.id=Id
         self.nom=nom
         self.prix=prix
         self.quantite=quantite
         self.seuil_alerte=seuil_alerte
         self.categorie_id=categorie_id
+        self.supplier_id=supplier_id
     def to_dict(self):
         dict = {
             "id": self.id,
@@ -31,15 +54,18 @@ class Produit:
             "prix": self.prix,
             "quantite": self.quantite,
             "seuil_alerte": self.seuil_alerte,
-            "categorie_id": self.categorie_id
+            "categorie_id": self.categorie_id,
+            "Supplier_id": self.supplier_id
         }
         return dict
+    
 class GestionnaireInventaire:
     def __init__(self, fichierss="inventaire.json"):
         self.fichierss = fichierss
         self.produits = []
         self.charger_load()
         self.categories=[]
+        self.fournisseurs=[]
 
     def charger_load(self):
         try:
@@ -52,7 +78,8 @@ class GestionnaireInventaire:
                     Produit.quantite=prod["quantite"]
                     Produit.seuil_alerte=prod["seuil_alerte"]
                     Produit.categorie_id=prod["categorie_id"]
-                    self.produits.append(Produit(Produit.id, Produit.nom, Produit.prix, Produit.quantite, Produit.seuil_alerte, Produit.categorie_id))
+                    Produit.supplier_id=prod["Supplier_id"]
+                    self.produits.append(Produit(Produit.id, Produit.nom, Produit.prix, Produit.quantite, Produit.seuil_alerte, Produit.categorie_id, Produit.supplier_id))
                 #return 
         except FileNotFoundError :
             print("Le fichier n'existe pas")
@@ -79,7 +106,7 @@ class GestionnaireInventaire:
                     Categorie.id=c["id"]
                     Categorie.nom=c["nom"]
                     Categorie.description=["description"]
-                    self.categories.append(Categorie(Categorie.id, Categorie.nom, Categorie.description))
+                    self.categories.append(Categorie(Categorie.nom, Categorie.description))
         except FileNotFoundError :
             print("Le fichier n'existe pas")
             #return []
@@ -92,7 +119,33 @@ class GestionnaireInventaire:
     def sauvegarder_categories(self, fichier_cat="categories.json"):
         with open(fichier_cat, "w") as f:
             json.dump([c.to_dict() for c in self.categories], f, indent=4)
-    
+
+    def charger_fournisseur(self, fichier_fou="fournisseurs.json"):
+        try:
+            with open(fichier_fou, "r") as f:
+                donnees=json.load(f)
+                for fou in donnees:
+                    Fournisseur.id=fou["id"]
+                    Fournisseur.name=fou["name"]
+                    Fournisseur.contact_person=fou["contact_person"]
+                    Fournisseur.email=fou["email"]
+                    Fournisseur.phone=fou["téléphone"]
+                    Fournisseur.address=fou["address"]
+                    Fournisseur.created_at=fou["created_at"]
+                    self.fournisseurs.append(Fournisseur(Fournisseur.name, Fournisseur.contact_person, Fournisseur.email, Fournisseur.phone, Fournisseur.address))
+        except FileNotFoundError :
+            print("Le fichier n'existe pas")
+            self.categoriess=[]
+        except json.JSONDecodeError:
+            print("Fichier JSON invalide")
+            self.categories=[]
+
+    def sauvegarder_fournisseur(self, fichier_fou="fournisseurs.json"):
+        with open(fichier_fou) as f:
+            json.dump([fou.to_dict()  for fou in self.fournisseurs], f, indent=4)
+        
+
+        
     def ajouter_categorie(self, nom, description):
         cat=Categorie(nom.lower(), description)
         self.categories.append(cat)
@@ -123,10 +176,47 @@ class GestionnaireInventaire:
                     del self.categories[i]
                     print(f"Produit {c.nom} supprimé")
                     self.sauvegarder_categories()
+                else:
+                    print("Supression annulé.")
             else:
                 print("Catégorie inexistante")
 
-    def ajouter_produit(self, nom, prix, quantite, seuil_alerte, categorie_id):
+    def ajouter_fournisseur(self, name, contact="", email="", phone="", address=""):
+        fou=Fournisseur(name, contact, email, phone, address)
+        self.fournisseurs.append(fou)
+        self.sauvegarder_categories()
+        print(f"Fournisseur '{name}' enregistré avec succès")
+        return fou.id
+    
+    def afficher_fournisseur(self):
+        if not self.fournisseurs:
+            print("Aucun fourniseur enregistré.")
+        else:
+            print("===LISTE DES FOURNISSEURS===")
+            for fou in self.fournisseurs:
+                print(f"[{fou.id}]  {fou.name} enregistré le {fou.created_at} ")
+
+    def trouver_fournisseur(self, name):
+        for fou in self.fournisseurs:
+            if fou.name.lower()==name.lower():
+                return fou.id
+            else:
+                return False
+            
+    def supprimer_fournisseur(self, fournisseur_name):
+        for i,fou in enumerate (self.fournisseurs):
+            if fou.name.lower()==fournisseur_name.lower():
+                confirmation = input(f"Etes vous sur de vouloir supprimer le fournisseur {fou.name} ? (oui/non) : ").lower()
+                if confirmation=="oui":
+                    del self.categories[i]
+                    print(f"Produit {fou.name} supprimé")
+                    self.sauvegarder_fournisseur()
+                else:
+                    print("Supression annulé.")
+            else:
+                print("Fournisseur inexistant")
+
+    def ajouter_produit(self, nom, prix, quantite, seuil_alerte, categorie_id, supplier_id):
         # self.donnees=self.charger_load()
         # self.Id = len(self.donnees)+1
         # self.Nom=input("Nom du produit à ajouter: ")
@@ -147,7 +237,7 @@ class GestionnaireInventaire:
                 if prix<0 or quantite<0 or seuil_alerte<0:
                     print("les valeurs ne peuvent pas etre négatives.")
                 else:
-                    self.produits.append(Produit(Id, nom, prix, quantite, seuil_alerte, categorie_id))
+                    self.produits.append(Produit(Id, nom, prix, quantite, seuil_alerte, categorie_id, supplier_id))
                     self.sauvegarde()
                     print(f"Produit '{nom}' ajouté avec succès.")
             except ValueError:
@@ -183,15 +273,21 @@ class GestionnaireInventaire:
             print("Erreur:le prix doit etre un nombre, la quantité et le seuil d'alerte des entiers")
 
     def supprimer_produit(self,nom):
+
         i=0
         for p in self.produits:
             i=i+1
             # if p.nom==nom:
             #     self.produits.pop(i-1)
             if self.produits[i-1].nom==nom:
-                self.produits.pop(i-1)
-                i=0
-        self.sauvegarde() 
+                confirmation = input(f"Etes vous sur de vouloir supprimer le fournisseur {fou.name} ? (oui/non) : ").lower()
+                if confirmation=="oui":
+                    self.produits.pop(i-1)
+                    self.sauvegarde() 
+                    print("Produit '{nom} supprimé avec succès.")
+                else:
+                    print("Supression annulé.")
+        # if 
 
     def rechercher_produit(self, nom):
         liste=[]
@@ -268,6 +364,7 @@ class GestionnaireInventaire:
 
 inventaire=GestionnaireInventaire()
 inventaire.charger_categories()
+inventaire.charger_fournisseur()
 while True:
     print("\n=== SYSTEME DE GESTION D'INVENTAIRE ===")
     print("1. Gestion des produits")
@@ -317,7 +414,20 @@ while True:
                     categorie_id=inventaire.trouver_categorie(choix_cat.lower())
                     if not categorie_id:
                         print("Categorie introuvable")
-                inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id)
+                print("Choisir un fournisseur existant ou taper 'nouveau': ")
+                choix_fou=input("Nom du fournisseur: ")
+                if choix_fou.lower()=="nouveau":
+                    name=input("Nom du nouveau fournisseur: ")
+                    contact=input("Contact du fournisseur: ")
+                    email=input("Email du fournisseur: ")
+                    phone=input("Numéro téléphonne du fournisseur: ")
+                    address=input("L'addresse du fournisseur")
+                    supplier_id=inventaire.ajouter_fournisseur(name, contact, email, phone, address)
+                else:
+                    supplier_id=inventaire.trouver_fournisseur(choix_fou.lower())
+                    if not supplier_id:
+                        print("Fournisseur introuvable")
+                inventaire.ajouter_produit(nom, prix, quantite, seuil_alerte, categorie_id, supplier_id)
             elif sous_choix=="2":
                 print("\n--Modifier un produit--")
                 nom=input("Nom du produit à modifier: ")
@@ -372,6 +482,32 @@ while True:
             elif sous_choix=="5":
                 print("\n Retour au menu principal")
                 break
+    elif choix=="3":
+        while True:
+            print("\n--- GESTION DES FOURNISSEURS ---")
+            print("1.Ajouter un fournisseur")
+            print("2.Afficher tous les fournisseurs")
+            print("3.Supprimer un fournisseur")
+            print("4. Retour")
+            sous_choix=input("Choisissez une option: ")
+            if sous_choix=="1":
+                print("\n---Ajouter un fournisseur---")
+                name=input("Nom du fournisseur: ")
+                contact=input("Contact du fournisseur: ")
+                email=input("Email du fournisseur: ")
+                phone=input("Numéro téléphonne du fournisseur: ")
+                address=input("L'addresse du fournisseur")
+                inventaire.ajouter_fournisseur(name, contact, email, phone, address)
+            elif sous_choix=="2":
+                print("\n---Afficher tous les fournisseurs---")
+                inventaire.afficher_fournisseur()
+            elif sous_choix=="3":
+                print("\n---Supprimer fournisseur---")
+                name=input("Nom du fournisseur à supprimer: ")
+                inventaire.supprimer_categorie(name) 
+            elif sous_choix=="4":
+                print("Retour.")
+                break       
     elif choix=="4":
         print("Merci!")
         break
